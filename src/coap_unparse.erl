@@ -2,6 +2,7 @@
 -export([build_request/2,
          build_response/3,
          build_text_response/4,
+         build_json_response/4,
          method_name/1]).
 
 -include("coaperl.hrl").
@@ -149,11 +150,18 @@ build_response(Class, Detail, Msgid) ->
     Type = type_code(confirmable),
     [<<1:2, Type:2, 0:4, Class:3, Detail:5, Msgid:16>>].
 
-build_text_response(Class, Detail, Msgid, Payload) ->
-    Options = content_format_to_options("text/plain"),
-    BinOptions = options_to_bin(Options),
+build_response(Class, Detail, Msgid, ContentFormat, Payload) ->
     Type = type_code(confirmable),
+    Options = content_format_to_options(ContentFormat),
+    BinOptions = options_to_bin(Options),
     [<<1:2, Type:2, 0:4, Class:3, Detail:5, Msgid:16>>, BinOptions, ?COAP_PAYLOAD_MARKER, Payload].
+
+
+build_text_response(Class, Detail, Msgid, Payload) ->
+    build_response(Class, Detail, Msgid, "text/plain", Payload).
+
+build_json_response(Class, Detail, Msgid, Payload) ->
+    build_response(Class, Detail, Msgid, "application/json", Payload).
 
 
 -ifdef(TEST).

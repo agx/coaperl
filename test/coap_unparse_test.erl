@@ -7,8 +7,10 @@ unparse_test_() ->
       check_build_request()},
      {"Building a response without payload in binary data",
       check_build_response()},
-     {"Building a response with payload in binary data",
-      check_build_text_response()}
+     {"Building a response with text/plain payload in binary data",
+      check_build_text_response()},
+     {"Building a response with application/json payload in binary data",
+      check_build_json_response()}
     ].
 
 % Tests
@@ -28,4 +30,10 @@ check_build_text_response() ->
     Ret = coap_unparse:build_text_response(2, 5, 1, "payload"),
     [?_assertEqual(Ret, [<<64,2:3, 5:5,0,1>>,
                          [[<<12:4,1:4>>,0]],
+                         255, "payload"])].
+
+check_build_json_response() ->
+    Ret = coap_unparse:build_json_response(2, 5, 1, "payload"),
+    [?_assertEqual(Ret, [<<64,2:3, 5:5,0,1>>,
+                         [[<<12:4,1:4>>,50]],
                          255, "payload"])].
